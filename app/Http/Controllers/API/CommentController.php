@@ -34,10 +34,6 @@ class CommentController extends Controller
 
     public function replyComment(Request $request, Post $post)
     {
-        // $this->validate($request, [
-        //     'description' => 'required|min:3',
-        // ]);
-
         $validator = Validator::make($request->all(), [
             'comment'=>'required',
             'post_id' => 'required|exists:posts,id'
@@ -50,9 +46,6 @@ class CommentController extends Controller
         $reply->post_id = $request->post->id;
         
         $post->comments()->save($reply);	
-        
- 
-        // $reply = auth()->user()->comments()->create($request->all() + ['post_id' => $post->id]);
 
         return response()->json([
             'success' => true,

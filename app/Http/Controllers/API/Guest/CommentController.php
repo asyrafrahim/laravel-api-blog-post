@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\API\Guest;
 
-use App\Http\Controllers\Controller;
+use App\Models\Post;
+use App\Models\Comment;
+use Validator;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class CommentController extends Controller
 {
-    
-    
     public function store(Request $request, Post $post)
     {
-        $comment = comments()->create($request->all() + ['post_id' => $post->id]);
+        $comment = Comment::create($request->all() + ['post_id' => $post->id]);
 
         return response()->json([
             'success' => true,
@@ -22,10 +23,6 @@ class CommentController extends Controller
 
     public function replyComment(Request $request, Post $post)
     {
-        // $this->validate($request, [
-        //     'description' => 'required|min:3',
-        // ]);
-
         $validator = Validator::make($request->all(), [
             'comment'=>'required',
             'post_id' => 'required|exists:posts,id'
@@ -36,10 +33,7 @@ class CommentController extends Controller
         $reply->parent_id = $request->get('comment_id');
         $reply->post_id = $request->post->id;
         
-        $post->comments()->save($reply);	
-        
- 
-        // $reply = auth()->user()->comments()->create($request->all() + ['post_id' => $post->id]);
+        $post->comments()->save($reply);
 
         return response()->json([
             'success' => true,
