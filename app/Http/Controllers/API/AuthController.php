@@ -13,19 +13,29 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        
-        $data = [
-            'email' => $request->email,
-            'password' => $request->password
-        ];
-        
-        if (auth()->attempt($data)) {
+        $validator = Validator::make($request->all(), [
+           
+            'email' => 'required|email',
+            'password' => 'required',
+
+        ]);
+   
+        if ($validator->fails()) {
+            return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors(),
+                ], 401);
+        }
+
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
-            $token = auth()->user()->createToken('BlogApp')->accessToken;
+            $success['token'] =  $user->createToken('BlogApp')-> accessToken;
+            $success['name'] =  $user->name;
+   
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful',
-                'token' => $token,
+                'token' => $success,
                 'user' => $user
             ], 200);
         } else {
@@ -33,7 +43,7 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'Invalid email or password',
             ], 401);
-        }
+        } 
     }
     
     public function register(Request $request)
@@ -42,26 +52,25 @@ class AuthController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required',
-            
         ]);
-        
+   
         if($validator->fails()){
-            return $this->sendError('Validation error.', $validator->errors(), 422);       
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ], 401);     
         }
-        
-        $user = User::create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'email' => $request->email,
-            'password' => bcrypt($request->password)
-        ]);
-        
-        $token = $user->createToken('BlogApp')->accessToken;
-        
+   
+        $input = $request->all();
+        $input['password'] = bcrypt($input['password']);
+        $user = User::create($input);
+        $success['token'] =  $user->createToken('BlogApp')->accessToken;
+        // $success['name'] =  $user->name;
+   
         return response()->json([
             'success' => true,
             'message' => 'Registration successful',
-            'token' => $token,
+            'token' => $success,
             'user' => $user
         ], 200);
     }
@@ -69,18 +78,18 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         if (Auth::user()) {
-            $token = Auth::user()->token();
-            $token->revoke();
-            
+            $user = Auth::user()->token();
+            $user->revoke();
+    
             return response()->json([
-                'success' => true,
-                'message' => 'Logout successfully'
-            ]);
+                    'success' => true,
+                    'message' => 'Logout successful'
+                ]);
         } else {
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to Logout'
-            ]);
+                    'success' => false,
+                    'message' => 'Unable to Logout'
+                ]);
         }
     }
 }
