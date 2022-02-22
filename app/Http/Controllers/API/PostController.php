@@ -13,7 +13,6 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::orderBy('created_at', 'desc')->get();
-        // $posts = posts()->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'success' => true,
@@ -24,7 +23,6 @@ class PostController extends Controller
     
     public function store(Request $request)
     {
-        // $post = Post::create($request->all());
         $post = auth()->user()->posts()->create($request->all());
 
         if($request->hasFile('attachment')){

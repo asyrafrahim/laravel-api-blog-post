@@ -12,7 +12,20 @@ class CommentController extends Controller
 {
     public function store(Request $request, Post $post)
     {
-        $comment = Comment::create($request->all() + ['post_id' => $post->id]);
+        // $comment = auth()->user()->comments()->create($request->all() + ['commentable_id' => $post->id]);
+
+        $this->validate($request, [
+            'comment' => 'required',
+            ]);
+        
+        $comment = new Comment;
+        $comment->comment = $request->comment;
+        
+        $comment->commentable_id = $post;
+        // Alternatively, use this for testing. Enter a post id inside find()
+        // $post = Post::find();
+
+        $post->comments()->save($comment);
 
         return response()->json([
             'success' => true,
@@ -23,15 +36,20 @@ class CommentController extends Controller
 
     public function replyComment(Request $request, Post $post)
     {
-        $validator = Validator::make($request->all(), [
-            'comment'=>'required',
-            'post_id' => 'required|exists:posts,id'
-        ]);
+        $this->validate($request, [
+            'comment' => 'required',
+    
+            ]);
         
         $reply = new Comment();
         $reply->comment = $request->get('comment');
+        
+        // Enter parent_id = {comment id} for testing
         $reply->parent_id = $request->get('comment_id');
-        $reply->post_id = $request->post->id;
+       
+        // Alternatively, use this for testing. Enter a post id inside find()
+        // $post = Post::find($request->get('post_id'));
+        $reply->commentable_id = $post;
         
         $post->comments()->save($reply);
 

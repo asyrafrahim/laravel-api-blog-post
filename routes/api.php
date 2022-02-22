@@ -29,12 +29,16 @@ Route::group([
     Route::get('/posts', 'API\PostController@index')->name('api:post:index');
     Route::post('/posts/create', 'API\PostController@store')->name('api:post:store')->middleware('auth:api');
     Route::get('/posts/{post}', 'API\PostController@show')->name('api:post:show');
+    
+    ## Guest create post
     Route::post('/posts/guest/create', 'API\Guest\PostController@store')->name('api:guest:post:store');
     
     ## Comment
     Route::get('/posts/{post}/comments', 'API\CommentController@index')->name('api:comment:index');
     Route::post('/posts/{post}/comments/create', 'API\CommentController@store')->name('api:comment:store')->middleware('auth:api');
     Route::post('/posts/{post}/comments/reply/create', 'API\CommentController@replyComment')->name('api:comment:reply')->middleware('auth:api');
+    
+    ## Guest create and reply comment
     Route::post('/posts/{post}/comments/guest/create', 'API\Guest\CommentController@store')->name('api:guest:comment:store');
     Route::post('/posts/{post}/comments/guest/reply/create', 'API\Guest\CommentController@replyComment')->name('api:guest:comment:reply');
 });

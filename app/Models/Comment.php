@@ -11,7 +11,6 @@ class Comment extends Model
 
     protected $fillable=[
         'comment',
-        'post_id',
         'user_id',
         'parent_id',
         'commentable_id',
@@ -33,9 +32,9 @@ class Comment extends Model
         return $this->hasMany(Comment::class, 'parent_id');
     }
 
-    public function commentable(){
+    // public function commentable(){
 
-        return $this->morphTo();
+    //     return $this->morphTo();
         
-    }
+    // }
 }
